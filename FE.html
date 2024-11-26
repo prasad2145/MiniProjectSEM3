@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Library Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f3;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        h2 {
+            border-bottom: 2px solid #007BFF;
+            padding-bottom: 5px;
+            color: #007BFF;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #000; /* Changed to black */
+            color: white; /* Keep text color white */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #333; /* Slightly lighter on hover */
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        #records {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #records h3 {
+            color: #333;
+        }
+
+        #records p {
+            margin: 5px 0;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            input, button {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Library Management System</h1>
+        <form id="libraryForm">
+            <h2>Add Book</h2>
+            <input type="text" id="bookTitle" placeholder="Book Title" required>
+            <input type="text" id="bookAuthor" placeholder="Book Author" required>
+            <button type="button" onclick="addBook()">Add Book</button>
+
+            <h2>Add User</h2>
+            <input type="text" id="userName" placeholder="User Name" required>
+            <input type="number" id="userPRN" placeholder="PRN" required>
+            <input type="text" id="userBranch" placeholder="Branch" required>
+            <input type="number" id="userSemester" placeholder="Semester" required>
+            <input type="text" id="userPhone" placeholder="Phone Number" required>
+            <button type="button" onclick="addUser()">Add User</button>
+
+            <h2>Borrow Book</h2>
+            <input type="number" id="borrowPRN" placeholder="User PRN" required>
+            <input type="text" id="borrowTitle" placeholder="Book Title" required>
+            <button type="button" onclick="borrowBook()">Borrow Book</button>
+
+            <h2>Return Book</h2>
+            <input type="number" id="returnPRN" placeholder="User PRN" required>
+            <input type="text" id="returnTitle" placeholder="Book Title" required>
+            <button type="button" onclick="returnBook()">Return Book</button>
+
+            <h2>Display Records</h2>
+            <button type="button" onclick="displayRecords()">Display Books</button>
+            <div id="records"></div>
+        </form>
+    </div>
+
+    <script>
+        let books = [];
+        let users = [];
+        let borrowedBooks = [];
+
+        function addBook() {
+            const title = document.getElementById('bookTitle').value;
+            const author = document.getElementById('bookAuthor').value;
+
+            if (title && author) {
+                books.push({ title, author });
+                alert('Book added successfully!');
+                document.getElementById('libraryForm').reset(); // Clear form
+            } else {
+                alert('Please fill in all fields.');
+            }
+        }
+
+        function addUser() {
+            const name = document.getElementById('userName').value;
+            const prn = document.getElementById('userPRN').value;
+            const branch = document.getElementById('userBranch').value;
+            const semester = document.getElementById('userSemester').value;
+            const phone = document.getElementById('userPhone').value;
+
+            if (name && prn && branch && semester && phone) {
+                users.push({ name, prn, branch, semester, phone });
+                alert('User added successfully!');
+                document.getElementById('libraryForm').reset(); // Clear form
+            } else {
+                alert('Please fill in all fields.');
+            }
+        }
+
+        function borrowBook() {
+            const prn = document.getElementById('borrowPRN').value;
+            const title = document.getElementById('borrowTitle').value;
+
+            const userExists = users.some(user => user.prn == prn);
+            const bookExists = books.some(book => book.title === title);
+
+            if (userExists && bookExists) {
+                borrowedBooks.push({ prn, title });
+                alert('Book borrowed successfully!');
+            } else {
+                alert('User or book not found.');
+            }
+        }
+
+        function returnBook() {
+            const prn = document.getElementById('returnPRN').value;
+            const title = document.getElementById('returnTitle').value;
+
+            const index = borrowedBooks.findIndex(borrowed => borrowed.prn == prn && borrowed.title === title);
+            
+            if (index !== -1) {
+                borrowedBooks.splice(index, 1);
+                alert('Book returned successfully!');
+            } else {
+                alert('No record of this book being borrowed by this user.');
+            }
+        }
+
+        function displayRecords() {
+            const recordsDiv = document.getElementById('records');
+            recordsDiv.innerHTML = '<h3>Books</h3>';
+
+            if (books.length === 0) {
+                recordsDiv.innerHTML += '<p>No books available.</p>';
+            } else {
+                books.forEach(book => {
+                    recordsDiv.innerHTML += `<p>${book.title} by ${book.author}</p>`;
+                });
+            }
+
+            recordsDiv.innerHTML += '<h3>Borrowed Books</h3>';
+            if (borrowedBooks.length === 0) {
+                recordsDiv.innerHTML += '<p>No borrowed books.</p>';
+            } else {
+                borrowedBooks.forEach(borrowed => {
+                    recordsDiv.innerHTML += `<p>${borrowed.title} borrowed by PRN: ${borrowed.prn}</p>`;
+                });
+            }
+        }
+    </script>
+</body>
+</html>
